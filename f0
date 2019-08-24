@@ -1,0 +1,102 @@
+FORM f_busqueda.
+
+  SELECT price carrid connid fldate currency
+    FROM sflight
+    INTO TABLE i_sflight
+    WHERE price IN s_price
+    AND carrid = p_carrid.
+
+ENDFORM.                    "f_busqueda
+
+
+*&---------------------------------------------------------------------*
+*&      Form  f_procesamiento
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM f_procesamiento.
+
+  i_aux = i_sflight.
+  SORT i_aux BY carrid connid.
+  DELETE ADJACENT DUPLICATES FROM i_aux COMPARING carrid connid.
+
+  SELECT * FROM spfli
+    INTO TABLE i_spfli
+    FOR ALL ENTRIES IN i_aux
+    WHERE carrid = i_aux-carrid
+    AND connid = i_aux-connid.
+
+  CLEAR wa_sflight.
+  CLEAR wa_spfli.
+
+  LOOP AT i_sflight INTO wa_sflight.
+    READ TABLE i_spfli INTO wa_spfli
+    WITH KEY carrid = wa_sflight-carrid
+             connid = wa_sflight-connid
+             BINARY SEARCH.
+
+    IF sy-subrc = 0.
+      wa_salida-cityfrom = wa_spfli-cityfrom.
+      wa_salida-cityto = wa_spfli-cityto.
+      wa_salida-connid = wa_sflight-connid.
+      wa_salida-price = wa_sflight-price.
+      wa_salida-currency = wa_sflight-currency.
+      wa_salida-fldate = wa_sflight-fldate.
+      APPEND wa_salida TO i_salida.
+    ENDIF.
+  ENDLOOP.
+
+  CLEAR wa_salida.
+
+ENDFORM.                    "f_procesamiento
+
+*&---------------------------------------------------------------------*
+*&      Form  f_muestra
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM f_muestra.
+
+  LOOP AT i_salida INTO wa_salida.
+    WRITE: / wa_salida-cityfrom,wa_salida-cityto,wa_salida-connid,wa_salida-price,wa_salida-currency,wa_salida-fldate.
+  ENDLOOP.
+
+ENDFORM.                    "f_muestra
+
+*&---------------------------------------------------------------------*
+*&      Form  imprimir_formulario
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+FORM imprimir_formulario.
+
+  CALL FUNCTION 'SSF_FUNCTION_MODULE_NAME'
+    EXPORTING
+*      formname           = 'ZPRUEBA_TONG'
+       formname           = 'Z_PRUEBATONG1'
+    IMPORTING
+      fm_name            = l_funcion
+    EXCEPTIONS
+      no_form            = 1
+      no_function_module = 2
+      OTHERS             = 3.
+
+  IF sy-subrc <> 0.
+    MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
+    WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+
+  ELSE.
+
+    CALL FUNCTION l_funcion
+      TABLES
+        t_data           = i_salida
+      EXCEPTIONS
+        formatting_error = 1
+        internal_error   = 2
+        send_error       = 3
+        user_canceled    = 4
+        OTHERS           = 5.
+
+  ENDIF.
+
+ENDFORM.
