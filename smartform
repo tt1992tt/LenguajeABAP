@@ -1,0 +1,18 @@
+REPORT  Z_EJERCICIO17.
+
+include z_tong17_top.
+include z_tong17_f0.
+
+start-of-selection.
+
+perform f_busqueda.
+
+if sy-subrc = 0.
+
+perform f_procesamiento.
+perform f_muestra.
+
+endif.
+
+end-of-selection.
+perform imprimir_formulario.
