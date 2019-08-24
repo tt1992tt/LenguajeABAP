@@ -1,0 +1,34 @@
+types: begin of ty_salida,
+  connid type sflight-connid,
+  fldate type sflight-fldate,
+  currency type sflight-currency,
+  price type sflight-price,
+  cityfrom type spfli-cityfrom,
+  cityto type spfli-cityto,
+  end of ty_salida.
+
+  types: begin of ty_sflight,
+  price type sflight-price,
+  carrid type sflight-carrid,
+  connid type sflight-connid,
+  fldate type sflight-fldate,
+  currency type sflight-currency,
+  end of ty_sflight.
+
+ data l_funcion type rs38l_fnam.
+
+ data: it_sflight type standard table of ty_sflight.
+
+ data: i_salida type table of ty_salida,
+       wa_salida type ty_salida.
+
+ data: i_sflight type table of ty_sflight,
+       wa_sflight type ty_sflight.
+
+ data: i_spfli type table of spfli,
+       wa_spfli type spfli.
+
+ data i_aux type table of ty_sflight.
+
+ parameters: p_carrid type sflight-carrid default 'LH'.
+ select-options s_price for wa_sflight-price.
