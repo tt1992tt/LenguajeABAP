@@ -1,1 +1,1 @@
-recolectar registros entre distintas tablas y dar la salida en un formulario (Smartform)
+uso del FOR ALL ENTRIES y salida de datos a traves de un formulario (Smartform)
